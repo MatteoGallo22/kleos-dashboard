@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kleos Capital – Dashboard</title>
+
+  <link rel="stylesheet" href="./assets/styles.css?v=202601071030" />
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- =====================
+         Sidebar
+    ====================== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="./assets/logo-kleos.svg" alt="Kleos Capital" class="logo-img" />
+        <div>
+          <h1>Kleos Capital</h1>
+          <p>Dashboard</p>
+        </div>
+      </div>
+
+      <div class="search" title="Cerca (demo)">
+        <input
+          id="search"
+          placeholder="Cerca… (es. KYC, performance, allocation)"
+          autocomplete="off"
+        />
+        <div class="kbd">Ctrl K</div>
+      </div>
+
+      <div class="nav">
+
+        <div class="section-title">Users & Wallet</div>
+
+        <!-- Kleos Users -->
+        <div class="nav-item open" id="nav-users">
+          <button class="nav-btn" type="button" id="btn-users">
+            <div class="left">
+              <div class="icon">👥</div>
+              <div class="title-wrap">
+                <div class="t">Summary Overview</div>
+              </div>
+            </div>
+            <div class="chev">▾</div>
+          </button>
+
+          <div class="subnav">
+            <button class="sub-btn active" data-page="users" type="button">
+              <span>Panoramica</span>
+              <span class="badge">All users</span>
+            </button>
+
+            <button class="sub-btn" data-page="users_overview" type="button">
+              <span>Users Overview</span>
+              <span class="badge">KPI</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Strategy Summary -->
+        <div class="nav-item">
+          <button class="sub-btn" data-page="binance" type="button">
+            <span>Strategy Summary</span>
+            <span class="badge">All plans</span>
+          </button>
+        </div>
+
+        <!-- Smart Yield -->
+        <div class="nav-item open" id="nav-omnibus">
+          <button class="nav-btn" id="btn-omnibus" type="button">
+            <div class="left">
+              <div class="icon">💼</div>
+              <div class="title-wrap">
+                <div class="t">Smart Yield</div>
+              </div>
+            </div>
+            <div class="chev">▾</div>
+          </button>
+
+          <div class="subnav">
+            <!-- ✅ ORDER REQUESTED -->
+            <button class="sub-btn" data-page="smart" type="button">
+              <span>DEFI Strategy</span>
+              <span class="badge">Yield</span>
+            </button>
+
+            <button class="sub-btn" data-page="premium" type="button">
+              <span>Non Custodial Wallets</span>
+              <span class="badge">Security</span>
+            </button>
+
+            <button class="sub-btn" data-page="smart_yield_users" type="button">
+              <span>Users</span>
+              <span class="badge">Smart</span>
+            </button>
+
+            <button class="sub-btn" data-page="smart_yield_reconciliation" type="button">
+              <span>Reconciliation</span>
+              <span class="badge">Ops</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="section-title">Impostazioni</div>
+
+        <div class="nav-item">
+          <button class="nav-btn" type="button" id="btn-settings">
+            <div class="left">
+              <div class="icon">⚙️</div>
+              <div class="title-wrap">
+                <div class="t">Settings</div>
+                <div class="s">Sistema & integrazioni</div>
+              </div>
+            </div>
+            <div class="chev" style="transform:none">→</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-row">
+          <span>Stato dati</span>
+          <span class="pill">
+            <span class="dot good"></span>
+            <span id="dataStatus">Mock</span>
+          </span>
+        </div>
+
+        <div class="footer-note">
+          Dati mock — collegare API backend & Binance.
+        </div>
+      </div>
+    </aside>
+
+    <!-- =====================
+         Main
+    ====================== -->
+    <main class="main">
+      <div class="topbar">
+        <div class="page-title">
+          <h2 id="pageTitle"></h2>
+          <p id="pageSubtitle"></p>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="btnRefresh">🔄 Refresh</button>
+          <button class="btn" id="btnExport">⬇️ Export</button>
+          <button class="btn primary" id="btnConnect">🔗 Connect Binance</button>
+        </div>
+      </div>
+
+      <div id="content"></div>
+    </main>
+  </div>
+
+  <script type="module" src="./js/app.js?v=20260107"></script>
+</body>
+</html>
