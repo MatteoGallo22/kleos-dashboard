@@ -1,22 +1,6 @@
 // Frontend/js/pages/plan.js
-import { DATA } from "../data.mock.js?v=1";
-
-/* =========================
-   Helpers (format)
-========================= */
-const fmtEUR0 = (n) =>
-  new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(Number(n || 0));
-
-const fmtEUR2 = (n) =>
-  new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 2,
-  }).format(Number(n || 0));
+import { DATA } from "../data.mock.js";
+import { fmtEUR0, fmtEUR2 } from "../utils.js";
 
 /* =========================
    Line chart SVG with Axes

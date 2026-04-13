@@ -1,136 +1,5 @@
 // Frontend/js/pages/smart_yield_reconciliation.js
-
-function escapeHtml(s) {
-  return String(s ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function formatDate(v) {
-  if (!v) return "-";
-  // support: ms timestamp, ISO string, Date
-  const d =
-    typeof v === "number"
-      ? new Date(v)
-      : v instanceof Date
-      ? v
-      : new Date(String(v));
-
-  if (Number.isNaN(d.getTime())) return escapeHtml(v);
-
-  // formato semplice dd/mm/yyyy
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
-
-function formatMoney(amount, ccy = "") {
-  if (amount === null || amount === undefined || amount === "-") return "-";
-  const n = typeof amount === "number" ? amount : Number(amount);
-  if (Number.isNaN(n)) return escapeHtml(amount);
-
-  // non imposto locale/valuta “hard”, restiamo semplici
-  const str = n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-  return ccy ? `${str} ${escapeHtml(ccy)}` : str;
-}
-
-function formatPercent(p) {
-  if (p === null || p === undefined || p === "-") return "-";
-  const n = typeof p === "number" ? p : Number(p);
-  if (Number.isNaN(n)) return escapeHtml(p);
-  return `${n.toFixed(2)}%`;
-}
-
-/**
- * Prova a derivare deposited, netProfit e profitPct anche se i campi cambiano.
- * - deposited: u.depositedAmount / totalAmountEurCents / totalAmountCents / amount / deposited
- * - netProfit: u.netProfit / profit / pnl / netProfitEurCents / profitEurCents
- * - profitPct: u.profitPct / profitPercent / profit_percentage
- *
- * Se netProfit non c’è ma esiste currentValue/balance/equity, prova:
- *   netProfit = current - deposited
- */
-function normalizeRow(u) {
-  const code = u.code || u.userCode || u.userId || u.id || "-";
-
-  const fullName =
-    u.fullName ||
-    u.name ||
-    `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
-    "-";
-
-  const planId = u.planId || u.plan_id || u.planCode || "-";
-  const plan = u.plan || u.planName || u.plan_label || "Smart Yield";
-
-  let deposited =
-    u.depositedAmount ??
-    u.totalAmountEurCents ??
-    u.totalAmountCents ??
-    u.amount ??
-    u.deposited ??
-    "-";
-
-  // Se arriva in cents, di solito è int: prova a convertirlo se sembra "grande"
-  if (typeof deposited === "number" && Math.abs(deposited) > 100000) {
-    deposited = deposited / 100;
-  }
-
-  const currency = u.currency || u.ccy || "EUR";
-
-  const date =
-    u.date ||
-    u.firstDepositDate ||
-    u.firstDepositDateMs ||
-    u.firstDeposit ||
-    u.createdAt ||
-    u.dateMs ||
-    "-";
-
-  let netProfit =
-    u.netProfit ??
-    u.profit ??
-    u.pnl ??
-    u.netProfitEurCents ??
-    u.profitEurCents ??
-    "-";
-
-  if (typeof netProfit === "number" && Math.abs(netProfit) > 100000) {
-    netProfit = netProfit / 100;
-  }
-
-  let profitPct =
-    u.profitPct ??
-    u.profitPercent ??
-    u.profit_percentage ??
-    u.profitRate ??
-    "-";
-
-  // Se mancano netProfit/profitPct ma abbiamo un "current"
-  const current =
-    u.currentValue ?? u.balance ?? u.equity ?? u.currentAmount ?? null;
-
-  const depNum = typeof deposited === "number" ? deposited : Number(deposited);
-
-  if ((netProfit === "-" || netProfit === null) && current !== null) {
-    const curNum = typeof current === "number" ? current : Number(current);
-    if (!Number.isNaN(curNum) && !Number.isNaN(depNum)) {
-      netProfit = curNum - depNum;
-    }
-  }
-
-  if (profitPct === "-" || profitPct === null) {
-    const npNum = typeof netProfit === "number" ? netProfit : Number(netProfit);
-    if (!Number.isNaN(npNum) && !Number.isNaN(depNum) && depNum !== 0) {
-      profitPct = (npNum / depNum) * 100;
-    }
-  }
-
-  return { code, fullName, planId, plan, deposited, currency, date, profitPct, netProfit };
-}
+import { escapeHtml, formatDate, formatMoney, formatPercent, normalizeReconciliationRow } from “../utils.js”;
 
 export function renderSmartYieldReconciliationPage() {
   return `
@@ -218,7 +87,7 @@ export function mountSmartYieldReconciliationPageInteractions() {
 
     tbody.innerHTML = rows
       .map((raw) => {
-        const r = normalizeRow(raw);
+        const r = normalizeReconciliationRow(raw);
 
         return `
           <tr>
@@ -250,7 +119,7 @@ export function mountSmartYieldReconciliationPageInteractions() {
   };
 
   const exportCsv = (rows) => {
-    const normalized = rows.map(normalizeRow);
+    const normalized = rows.map(normalizeReconciliationRow);
 
     const header = [
       "Code",

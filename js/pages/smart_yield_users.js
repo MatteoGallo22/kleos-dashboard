@@ -1,41 +1,5 @@
 // Frontend/js/pages/smart_yield_users.js
-
-function escapeHtml(s) {
-  return String(s ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function formatDate(v) {
-  if (!v) return "-";
-  const d =
-    typeof v === "number"
-      ? new Date(v)
-      : v instanceof Date
-      ? v
-      : new Date(String(v));
-
-  if (Number.isNaN(d.getTime())) return escapeHtml(v);
-
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
-
-function normalizeDeposited(dep) {
-  if (dep === null || dep === undefined || dep === "-") return "-";
-  const n = typeof dep === "number" ? dep : Number(dep);
-  if (Number.isNaN(n)) return dep;
-
-  // Se sembra in cents (valore grande), converti a unità
-  if (Math.abs(n) > 100000) return n / 100;
-
-  return n;
-}
+import { escapeHtml, formatDate, normalizeUser } from "../utils.js";
 
 export function renderSmartYieldUsersPage() {
   return `
@@ -112,48 +76,17 @@ export function mountSmartYieldUsersPageInteractions() {
     if (empty) empty.style.display = "none";
 
     tbody.innerHTML = rows
-      .map((u) => {
-        const code = u.code || u.userCode || u.userId || u.id || "-";
-
-        const fullName =
-          u.fullName ||
-          u.name ||
-          `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
-          "-";
-
-        const planId = u.planId || u.plan_id || u.planCode || "-";
-        const plan = u.plan || u.planName || u.plan_label || "Smart Yield";
-
-        let deposited =
-          u.depositedAmount ??
-          u.totalAmountEurCents ??
-          u.totalAmountCents ??
-          u.amount ??
-          u.deposited ??
-          "-";
-
-        deposited = normalizeDeposited(deposited);
-
-        const currency = u.currency || u.ccy || "EUR";
-
-        const date =
-          u.date ||
-          u.firstDepositDate ||
-          u.firstDepositDateMs ||
-          u.firstDeposit ||
-          u.createdAt ||
-          u.dateMs ||
-          "-";
-
+      .map((raw) => {
+        const u = normalizeUser(raw);
         return `
           <tr>
-            <td>${escapeHtml(code)}</td>
-            <td>${escapeHtml(fullName)}</td>
-            <td>${escapeHtml(planId)}</td>
-            <td>${escapeHtml(plan)}</td>
-            <td>${typeof deposited === "number" ? deposited.toLocaleString(undefined, { maximumFractionDigits: 2 }) : escapeHtml(deposited)}</td>
-            <td>${escapeHtml(currency)}</td>
-            <td>${formatDate(date)}</td>
+            <td>${escapeHtml(u.code)}</td>
+            <td>${escapeHtml(u.fullName)}</td>
+            <td>${escapeHtml(u.planId)}</td>
+            <td>${escapeHtml(u.plan)}</td>
+            <td>${typeof u.deposited === "number" ? u.deposited.toLocaleString(undefined, { maximumFractionDigits: 2 }) : escapeHtml(u.deposited)}</td>
+            <td>${escapeHtml(u.currency)}</td>
+            <td>${formatDate(u.date)}</td>
           </tr>
         `;
       })

@@ -1,6 +1,9 @@
 // Frontend/js/pages/users_overview.js
 import { escapeHtml } from "../utils.js";
 
+// Tracks global listeners so they can be cleaned up on re-mount
+let _overviewAbort = null;
+
 // ---- Mock users (poi li colleghi a /api/users) ----
 const USERS = [
   { clientId: "U001", email: "alice.rossi@kleos.app", mobile: "+39 333 111 2222", platform: "iOS", status: "verified", country: "Italy", signupDate: "2025-08-29" },
@@ -360,55 +363,6 @@ export function renderUsersOverviewPage() {
       </div>
     </div>
 
-    <style>
-      /* --- SIZE FIXES (this is what you asked) --- */
-      .users-overview-grid .uo-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-      .users-overview-grid .uo-range{ display:flex; gap:10px; margin-top:10px; align-items:center; }
-      .users-overview-grid .uo-chip{ display:flex; gap:8px; align-items:center; }
-
-      .users-overview-grid .uo-chart-wrap{ margin-top:10px; max-width:100%; }
-      .uo-chart{ width:100%; height:auto; max-height:190px; }
-
-      .uo-pie{ display:flex; gap:14px; align-items:center; }
-      .uo-pie-svg{ width:130px; height:130px; flex:0 0 auto; }
-
-      .uo-map{ width:100%; height:auto; max-height:320px; }
-
-      .lc-grid{ stroke: rgba(255,255,255,.08); stroke-width:1; }
-      .lc-axisline{ stroke: rgba(255,255,255,.18); stroke-width:1; }
-      .lc-axis{ fill: rgba(255,255,255,.55); font-size:10px; }
-      .lc-line{ stroke: rgba(255,255,255,.85); stroke-width:2; }
-      .lc-dot{ fill: rgba(255,255,255,.95); }
-
-      .pie-seg{ fill:none; stroke-width:14; }
-      .pie-seg.good{ stroke: rgba(70, 210, 140, .95); }
-      .pie-seg.warn{ stroke: rgba(255, 196, 87, .95); }
-      .pie-seg.bad{ stroke: rgba(255, 106, 106, .95); }
-
-      .map-bg{ fill: rgba(255,255,255,.03); stroke: rgba(255,255,255,.10); }
-      .map-land{ fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.10); }
-
-      .map-pin{ cursor:pointer; }
-      .mp-circle{ fill: rgba(255,255,255,.10); stroke: rgba(255,255,255,.30); }
-      .mp-core{ fill: rgba(255,255,255,.55); }
-      .map-pin:hover .mp-circle{ fill: rgba(255,255,255,.16); }
-      .mp-label{ fill: rgba(255,255,255,.65); font-size:10px; }
-      .mp-count{ fill: rgba(255,255,255,.95); font-size:12px; font-weight:700; }
-
-      .modal-overlay{
-        position:fixed; inset:0; background: rgba(0,0,0,.55);
-        display:flex; align-items:center; justify-content:center;
-        padding:16px; z-index:9999;
-      }
-      .modal{
-        width:min(720px, 96vw);
-        background: rgba(18,18,22,.96);
-        border: 1px solid rgba(255,255,255,.12);
-        border-radius: 16px;
-        padding: 14px;
-        box-shadow: 0 24px 80px rgba(0,0,0,.55);
-      }
-    </style>
   `;
 }
 
@@ -540,13 +494,19 @@ export function mountUsersOverviewPageInteractions() {
 
   if (modalClose) modalClose.addEventListener("click", closeModal);
   if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
-  window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-  // Delegated action buttons
-  document.addEventListener("click", (e) => {
+  // Use AbortController so these global listeners are removed on next page navigation
+  if (_overviewAbort) _overviewAbort.abort();
+  _overviewAbort = new AbortController();
+  const { signal } = _overviewAbort;
+
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); }, { signal });
+
+  // Delegated action buttons (scoped to content area, cleaned up via signal)
+  document.getElementById("content")?.addEventListener("click", (e) => {
     const btn = e.target?.closest?.("[data-action='openUser']");
     if (!btn) return;
     const id = btn.getAttribute("data-client-id");
     if (id) openUser(id);
-  });
+  }, { signal });
 }

@@ -1,24 +1,6 @@
 // Frontend/js/pages/binance.js
-import { DATA } from "../data.mock.js?v=1";
-
-/* =========================
-   Helpers (format)
-========================= */
-const fmtEUR0 = (n) =>
-  new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(Number(n || 0));
-
-const fmtEUR2 = (n) =>
-  new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 2,
-  }).format(Number(n || 0));
-
-const fmtPct2 = (n) => `${Number(n || 0).toFixed(2)}%`;
+import { DATA } from "../data.mock.js";
+import { fmtEUR0, fmtEUR2, fmtPct2 } from "../utils.js";
 
 /* =========================
    Charts (SVG)

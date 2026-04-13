@@ -9,25 +9,19 @@ import {
   mountUsersOverviewPageInteractions,
 } from "./pages/users_overview.js";
 
-// ✅ import per montare le interazioni dei piani (tabs timeframe in DEFI Strategy)
-import { mountPlanPageInteractions } from "./pages/plan.js";
+const { renderBinancePage } = await import("./pages/binance.js");
+const { renderPlanPage, mountPlanPageInteractions } = await import("./pages/plan.js");
+const { renderSettingsPage } = await import("./pages/settings.js");
 
-// ✅ cache-buster AUTOMATICO: aggiorna sempre i moduli durante lo sviluppo
-const V = `v=${Date.now()}`;
-const { renderBinancePage } = await import(`./pages/binance.js?${V}`);
-const { renderPlanPage } = await import(`./pages/plan.js?${V}`);
-const { renderSettingsPage } = await import(`./pages/settings.js?${V}`);
-
-// ✅ NEW: Smart Yield sub-pages (separati per non sovraccaricare plan.js)
 const {
   renderSmartYieldUsersPage,
   mountSmartYieldUsersPageInteractions,
-} = await import(`./pages/smart_yield_users.js?${V}`);
+} = await import("./pages/smart_yield_users.js");
 
 const {
   renderSmartYieldReconciliationPage,
   mountSmartYieldReconciliationPageInteractions,
-} = await import(`./pages/smart_yield_reconciliation.js?${V}`);
+} = await import("./pages/smart_yield_reconciliation.js");
 
 /* =======================
    DOM refs
@@ -98,9 +92,6 @@ function showAuth() {
 function navigate(page) {
   currentPage = page;
   setActive(page);
-
-  // 🔎 DEBUG: traccia SEMPRE il routing
-  console.log("[NAVIGATE] page =", page);
 
   // Users
   if (page === "users") {
@@ -205,29 +196,6 @@ function navigate(page) {
   navigate("users");
 }
 
-// Optional: allow pages to call navigation
-window.navigate = navigate;
-
-/* =======================
-   ✅ TEST 2: CLICK LOGGER (CAPTURE
-   Capisce chi prende davvero il click)
-======================= */
-document.addEventListener(
-  "click",
-  (e) => {
-    const target = e.target;
-    const dataBtn = target?.closest?.("[data-page]");
-    console.log(
-      "[CLICK CAPTURE]",
-      "target=",
-      target,
-      "| closest [data-page]=",
-      dataBtn ? dataBtn.dataset.page : undefined
-    );
-  },
-  true // capture
-);
-
 /* =======================
    Sidebar wiring
 ======================= */
@@ -260,23 +228,22 @@ if (btnSettings) {
 }
 
 /* =======================
-   ✅ CLICK HANDLER ROBUSTO (DELEGATION)
-   Gestisce TUTTI i bottoni con data-page
-   anche se DOM cambia / classi cambiano
+   Sidebar navigation delegation
+   Scoped to sidebar to avoid conflicts with page-internal [data-page] elements
 ======================= */
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-page]");
-  if (!btn) return;
+const sidebar = document.querySelector(".sidebar");
+if (sidebar) {
+  sidebar.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-page]");
+    if (!btn) return;
 
-  // se è un bottone dentro subnav, impediamo side-effects
-  e.preventDefault();
-  e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
-  const page = btn.dataset.page;
-  if (!page) return;
-
-  navigate(page);
-});
+    const page = btn.dataset.page;
+    if (page) navigate(page);
+  });
+}
 
 /* =======================
    Topbar buttons
