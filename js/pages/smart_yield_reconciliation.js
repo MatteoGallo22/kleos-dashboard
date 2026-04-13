@@ -1,5 +1,5 @@
 // Frontend/js/pages/smart_yield_reconciliation.js
-import { escapeHtml, formatDate, formatMoney, formatPercent, normalizeReconciliationRow } from “../utils.js”;
+import { escapeHtml, formatDate, formatMoney, formatPercent, normalizeReconciliationRow } from "../utils.js";
 
 export function renderSmartYieldReconciliationPage() {
   return `

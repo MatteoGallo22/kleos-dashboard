@@ -127,7 +127,7 @@ function lineChartSvg(labels, values) {
 }
 
 function pieChartSvg(verified, pending, rejected) {
-  // Ridotto e più “card-like”
+  // Ridotto e più "card-like"
   const values = [
     { label: "Verified", value: verified, cls: "good" },
     { label: "Pending", value: pending, cls: "warn" },
