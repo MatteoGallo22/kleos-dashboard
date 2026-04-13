@@ -9,7 +9,7 @@ import {
   mountUsersOverviewPageInteractions,
 } from "./pages/users_overview.js";
 
-const { renderBinancePage } = await import("./pages/binance.js");
+const { renderBinancePage, mountBinancePageInteractions } = await import("./pages/binance.js");
 const { renderPlanPage, mountPlanPageInteractions } = await import("./pages/plan.js");
 const { renderSettingsPage } = await import("./pages/settings.js");
 
@@ -103,6 +103,7 @@ const ROUTES = {
   binance: {
     title: "Strategy Summary",
     render: renderBinancePage,
+    mount: mountBinancePageInteractions,
   },
   smart_yield_users: {
     title: "Smart Yield",
