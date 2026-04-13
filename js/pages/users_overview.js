@@ -1,4 +1,5 @@
 // Frontend/js/pages/users_overview.js
+import { escapeHtml } from "../utils.js";
 
 // ---- Mock users (poi li colleghi a /api/users) ----
 const USERS = [
@@ -247,13 +248,13 @@ function usersTable(users) {
           const dot = statusPillDotClass(s);
           return `
             <tr>
-              <td><b>${u.clientId}</b></td>
-              <td>${u.email}</td>
-              <td>${u.mobile}</td>
-              <td>${u.platform}</td>
+              <td><b>${escapeHtml(u.clientId)}</b></td>
+              <td>${escapeHtml(u.email)}</td>
+              <td>${escapeHtml(u.mobile)}</td>
+              <td>${escapeHtml(u.platform)}</td>
               <td><span class="pill"><span class="dot ${dot}"></span>${statusLabel(s)}</span></td>
               <td>
-                <button class="btn" type="button" data-action="openUser" data-client-id="${u.clientId}">
+                <button class="btn" type="button" data-action="openUser" data-client-id="${escapeHtml(u.clientId)}">
                   View
                 </button>
               </td>
@@ -458,7 +459,7 @@ export function mountUsersOverviewPageInteractions() {
 
     countryDetails.innerHTML = `
       <div class="card" style="margin:0">
-        <h3 style="margin:0">Users in ${country} <span class="hint">List</span></h3>
+        <h3 style="margin:0">Users in ${escapeHtml(country)} <span class="hint">List</span></h3>
         <div style="margin-top:10px">
           ${
             list.length
@@ -473,11 +474,11 @@ export function mountUsersOverviewPageInteractions() {
                     const s = normalizeStatus(u.status);
                     return `
                       <tr>
-                        <td><b>${u.clientId}</b></td>
-                        <td>${u.email}</td>
+                        <td><b>${escapeHtml(u.clientId)}</b></td>
+                        <td>${escapeHtml(u.email)}</td>
                         <td><span class="pill"><span class="dot ${statusPillDotClass(s)}"></span>${statusLabel(s)}</span></td>
-                        <td>${u.signupDate}</td>
-                        <td><button class="btn" type="button" data-action="openUser" data-client-id="${u.clientId}">View</button></td>
+                        <td>${escapeHtml(u.signupDate)}</td>
+                        <td><button class="btn" type="button" data-action="openUser" data-client-id="${escapeHtml(u.clientId)}">View</button></td>
                       </tr>
                     `;
                   })
@@ -522,12 +523,12 @@ export function mountUsersOverviewPageInteractions() {
     modalSubtitle.textContent = `${u.email}`;
     modalBody.innerHTML = `
       <div class="split">
-        <div class="kv"><div class="k">Client ID</div><div class="val">${u.clientId}</div></div>
+        <div class="kv"><div class="k">Client ID</div><div class="val">${escapeHtml(u.clientId)}</div></div>
         <div class="kv"><div class="k">Status</div><div class="val"><span class="pill"><span class="dot ${statusPillDotClass(s)}"></span>${statusLabel(s)}</span></div></div>
-        <div class="kv"><div class="k">Mobile</div><div class="val">${u.mobile}</div></div>
-        <div class="kv"><div class="k">Platform</div><div class="val">${u.platform}</div></div>
-        <div class="kv"><div class="k">Country</div><div class="val">${u.country}</div></div>
-        <div class="kv"><div class="k">Signup date</div><div class="val">${u.signupDate}</div></div>
+        <div class="kv"><div class="k">Mobile</div><div class="val">${escapeHtml(u.mobile)}</div></div>
+        <div class="kv"><div class="k">Platform</div><div class="val">${escapeHtml(u.platform)}</div></div>
+        <div class="kv"><div class="k">Country</div><div class="val">${escapeHtml(u.country)}</div></div>
+        <div class="kv"><div class="k">Signup date</div><div class="val">${escapeHtml(u.signupDate)}</div></div>
       </div>
     `;
     overlay.style.display = "flex";

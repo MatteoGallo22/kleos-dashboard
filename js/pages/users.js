@@ -1,4 +1,5 @@
 // Frontend/js/pages/users.js
+import { escapeHtml, fmtEUR } from "../utils.js";
 
 // Mock data (poi lo collegherai a /api/users)
 const USERS = [
@@ -9,13 +10,6 @@ const USERS = [
   { code: "U002", fullName: "Bruno Verdi",  planId: "A-002", plan: "Smart Yield",depositedAmountEur: 7500,  currency: "USDC", date: "2025-09-10" },
   { code: "U001", fullName: "Alice Rossi",  planId: "A-001", plan: "Smart Yield",depositedAmountEur: 10000, currency: "USDC", date: "2025-08-29" },
 ];
-
-const fmtEUR = (n) =>
-  new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(Number(n || 0));
 
 function groupSumByPlan(users) {
   const out = { "Smart Yield": 0, Premium: 0, Platinum: 0 };
@@ -52,7 +46,7 @@ function donutSvg(values) {
       (v) => `
       <div class="legend-row">
         <span class="legend-dot"></span>
-        <span class="legend-label">${v.label}</span>
+        <span class="legend-label">${escapeHtml(v.label)}</span>
         <span class="legend-val">${fmtEUR(v.value)}</span>
       </div>
     `
@@ -87,7 +81,7 @@ function barAuAStrategy(sumByPlan) {
           const pct = Math.round((vals[i] / max) * 100);
           return `
             <div class="bar-row">
-              <div class="bar-name">${lab}</div>
+              <div class="bar-name">${escapeHtml(lab)}</div>
               <div class="bar-track">
                 <div class="bar-fill" style="width:${pct}%"></div>
               </div>
@@ -161,13 +155,13 @@ function usersTable(users) {
           .map(
             (u) => `
           <tr>
-            <td><b>${u.code}</b></td>
-            <td>${u.fullName}</td>
-            <td>${u.planId}</td>
-            <td>${u.plan}</td>
+            <td><b>${escapeHtml(u.code)}</b></td>
+            <td>${escapeHtml(u.fullName)}</td>
+            <td>${escapeHtml(u.planId)}</td>
+            <td>${escapeHtml(u.plan)}</td>
             <td>${fmtEUR(u.depositedAmountEur)}</td>
-            <td>${u.currency}</td>
-            <td>${u.date}</td>
+            <td>${escapeHtml(u.currency)}</td>
+            <td>${escapeHtml(u.date)}</td>
           </tr>
         `
           )
