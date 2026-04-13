@@ -87,113 +87,66 @@ function showAuth() {
 }
 
 /* =======================
+   Route registry
+======================= */
+const ROUTES = {
+  users: {
+    title: "Summary Overview",
+    render: renderUsersPage,
+    mount: mountUsersPageInteractions,
+  },
+  users_overview: {
+    title: "Users Overview",
+    render: renderUsersOverviewPage,
+    mount: mountUsersOverviewPageInteractions,
+  },
+  binance: {
+    title: "Strategy Summary",
+    render: renderBinancePage,
+  },
+  smart_yield_users: {
+    title: "Smart Yield",
+    subtitle: "Users",
+    render: renderSmartYieldUsersPage,
+    mount: mountSmartYieldUsersPageInteractions,
+  },
+  smart_yield_reconciliation: {
+    title: "Smart Yield",
+    subtitle: "Reconciliation",
+    render: renderSmartYieldReconciliationPage,
+    mount: mountSmartYieldReconciliationPageInteractions,
+  },
+  smart: {
+    title: "DEFI Strategy",
+    subtitle: "Analisi strategica, allocation e performance.",
+    render: () => renderPlanPage("smart"),
+    mount: mountPlanPageInteractions,
+  },
+  premium: {
+    title: "Non Custodial Wallets",
+    subtitle: "Analisi strategica, allocation e performance.",
+    render: () => renderPlanPage("premium"),
+    mount: mountPlanPageInteractions,
+  },
+  settings: {
+    title: "Settings",
+    subtitle: "Placeholder per integrazioni: ruoli, permessi, notifiche, audit log.",
+    render: renderSettingsPage,
+  },
+};
+
+/* =======================
    Router
 ======================= */
 function navigate(page) {
+  const route = ROUTES[page];
+  if (!route) { navigate("users"); return; }
+
   currentPage = page;
   setActive(page);
-
-  // Users
-  if (page === "users") {
-    setHeader("Summary Overview", "");
-    content.innerHTML = renderUsersPage();
-    mountUsersPageInteractions();
-    return;
-  }
-
-  // Users Overview
-  if (page === "users_overview") {
-    setHeader("Users Overview", "");
-    content.innerHTML = renderUsersOverviewPage();
-    mountUsersOverviewPageInteractions();
-    return;
-  }
-
-  // Strategy Summary (ex Binance overview)
-  if (page === "binance") {
-    setHeader("Strategy Summary", "");
-    content.innerHTML = renderBinancePage();
-    return;
-  }
-
-  // ✅ NEW: Smart Yield -> Users
-  if (page === "smart_yield_users") {
-    setHeader("Smart Yield", "Users");
-
-    // guardrail: se export mismatch, lo vedi subito a schermo
-    if (typeof renderSmartYieldUsersPage !== "function") {
-      console.error("renderSmartYieldUsersPage missing or not a function", {
-        renderSmartYieldUsersPage,
-      });
-      content.innerHTML = `<div style="padding:20px">❌ renderSmartYieldUsersPage non è una funzione (export mismatch)</div>`;
-      return;
-    }
-
-    content.innerHTML = renderSmartYieldUsersPage();
-
-    if (typeof mountSmartYieldUsersPageInteractions === "function") {
-      mountSmartYieldUsersPageInteractions();
-    } else {
-      console.warn(
-        "mountSmartYieldUsersPageInteractions missing (ok se non serve)"
-      );
-    }
-    return;
-  }
-
-  // ✅ NEW: Smart Yield -> Reconciliation
-  if (page === "smart_yield_reconciliation") {
-    setHeader("Smart Yield", "Reconciliation");
-
-    if (typeof renderSmartYieldReconciliationPage !== "function") {
-      console.error(
-        "renderSmartYieldReconciliationPage missing or not a function",
-        { renderSmartYieldReconciliationPage }
-      );
-      content.innerHTML = `<div style="padding:20px">❌ renderSmartYieldReconciliationPage non è una funzione (export mismatch)</div>`;
-      return;
-    }
-
-    content.innerHTML = renderSmartYieldReconciliationPage();
-
-    if (typeof mountSmartYieldReconciliationPageInteractions === "function") {
-      mountSmartYieldReconciliationPageInteractions();
-    } else {
-      console.warn(
-        "mountSmartYieldReconciliationPageInteractions missing (ok se non serve)"
-      );
-    }
-    return;
-  }
-
-  // Plans (DEFI Strategy / Non Custodial Wallets)
-  if (page === "smart" || page === "premium") {
-    const map = {
-      smart: "DEFI Strategy",
-      premium: "Non Custodial Wallets",
-    };
-    const name = map[page];
-
-    setHeader(name, "Analisi strategica, allocation e performance.");
-    content.innerHTML = renderPlanPage(page);
-
-    // ✅ monta interazioni della pagina piano (tabs timeframe ecc.)
-    mountPlanPageInteractions();
-    return;
-  }
-
-  // Settings
-  if (page === "settings") {
-    setHeader(
-      "Settings",
-      "Placeholder per integrazioni: ruoli, permessi, notifiche, audit log."
-    );
-    content.innerHTML = renderSettingsPage();
-    return;
-  }
-
-  // Default
-  navigate("users");
+  setHeader(route.title, route.subtitle || "");
+  content.innerHTML = route.render();
+  if (route.mount) route.mount();
 }
 
 /* =======================
@@ -298,7 +251,6 @@ if (search) {
       )
         return navigate("binance");
 
-      // ✅ NEW: search shortcuts for Smart Yield sub-pages
       if (
         q.includes("smart yield users") ||
         (q.includes("smart") && q.includes("users"))
